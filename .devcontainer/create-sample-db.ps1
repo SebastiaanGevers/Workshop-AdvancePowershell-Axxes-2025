@@ -9,9 +9,18 @@ try {
     # Import dbatools module
     Import-Module dbatools -Force
 
-    # Test connection
+    # Test connection with SSL/Certificate settings
     Write-Host "Testing connection to SQL Server..." -ForegroundColor Cyan
-    $server = Connect-DbaInstance -SqlInstance $serverInstance -SqlCredential $credential
+    
+    # Connect with TrustServerCertificate to bypass certificate validation
+    $connectionParams = @{
+        SqlInstance = $serverInstance
+        SqlCredential = $credential
+        TrustServerCertificate = $true
+        EnableException = $true
+    }
+    
+    $server = Connect-DbaInstance @connectionParams
     Write-Host "✅ Connected to SQL Server successfully" -ForegroundColor Green
 
     # Create sample databases
@@ -27,7 +36,7 @@ BEGIN
     CREATE DATABASE [$dbName]
 END
 "@
-        Invoke-DbaQuery -SqlInstance $server -Query $createDbQuery
+        Invoke-DbaQuery -SqlInstance $server -Query $createDbQuery -EnableException
         
         # Create sample tables in WorkshopDB
         if ($dbName -eq "WorkshopDB") {
@@ -95,7 +104,7 @@ BEGIN
     CREATE INDEX IX_Employees_Salary ON Employees(Salary)
 END
 "@
-            Invoke-DbaQuery -SqlInstance $server -Database $dbName -Query $sampleDataQuery
+            Invoke-DbaQuery -SqlInstance $server -Database $dbName -Query $sampleDataQuery -EnableException
             Write-Host "✅ Sample data created in $dbName" -ForegroundColor Green
         }
     }
