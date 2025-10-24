@@ -1,22 +1,17 @@
 {
     "name": "DBA Tools Workshop",
-    "dockerComposeFile": "docker-compose.yml",
-    "service": "workspace",
-    "workspaceFolder": "/workspace",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
     
     "features": {
         "ghcr.io/devcontainers/features/powershell:1": {},
-        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-        "ghcr.io/devcontainers/features/git:1": {}
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {}
     },
 
     "customizations": {
         "vscode": {
             "extensions": [
                 "ms-vscode.PowerShell",
-                "ms-mssql.mssql",
-                "ms-azuretools.vscode-docker",
-                "GitHub.codespaces"
+                "ms-mssql.mssql"
             ]
         }
     },
@@ -25,10 +20,5 @@
 
     "postCreateCommand": "bash .devcontainer/setup.sh",
 
-    "remoteUser": "vscode",
-    
-    "containerEnv": {
-        "ACCEPT_EULA": "Y",
-        "MSSQL_SA_PASSWORD": "DBATools2024!"
-    }
+    "remoteUser": "vscode"
 }
