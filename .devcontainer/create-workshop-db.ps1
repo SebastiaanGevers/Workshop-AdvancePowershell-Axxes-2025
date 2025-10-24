@@ -1,27 +1,21 @@
-# Create Workshop Databases - Certificate Error Free
+# Create Workshop Databases - Simple and Clean
 Write-Host "🗄️ Creating workshop databases..." -ForegroundColor Green
 
-# Connection parameters - configured to avoid certificate issues
+# Connection parameters
 $serverInstance = "localhost"
 $password = "Workshop2024!"
 $credential = New-Object System.Management.Automation.PSCredential("sa", (ConvertTo-SecureString $password -AsPlainText -Force))
 
 try {
-    # Import dbatools and configure for certificate-free connections
+    # Import dbatools
     Import-Module dbatools -Force
-    
-    # Ensure certificate trust is configured
-    Set-DbatoolsConfig -FullName sql.connection.trustcert -Value $true -PassThru | Out-Null
-    Set-DbatoolsConfig -FullName sql.connection.encrypt -Value $false -PassThru | Out-Null
     
     Write-Host "Testing SQL Server connection..." -ForegroundColor Cyan
     
-    # Connect with explicit certificate handling
+    # Simple connection parameters
     $connectionParams = @{
         SqlInstance = $serverInstance
         SqlCredential = $credential
-        TrustServerCertificate = $true
-        EnableException = $true
     }
     
     # Test connection first
@@ -33,10 +27,11 @@ try {
     Write-Host "✅ SQL Server connection successful" -ForegroundColor Green
     
     # Create workshop databases
+    Write-Host "`nCreating databases..." -ForegroundColor Cyan
     $databases = @("WorkshopDB", "TestDB", "SampleCompany")
     
     foreach ($dbName in $databases) {
-        Write-Host "Creating database: $dbName" -ForegroundColor Cyan
+        Write-Host "  → Creating $dbName..." -ForegroundColor Gray
         
         try {
             # Check if database exists
@@ -45,12 +40,12 @@ try {
             if (-not $existingDb) {
                 # Create new database
                 New-DbaDatabase @connectionParams -Name $dbName | Out-Null
-                Write-Host "✅ Database '$dbName' created" -ForegroundColor Green
+                Write-Host "    ✅ Created successfully" -ForegroundColor Green
             } else {
-                Write-Host "ℹ️ Database '$dbName' already exists" -ForegroundColor Yellow
+                Write-Host "    ℹ️ Already exists, skipping" -ForegroundColor Yellow
             }
         } catch {
-            Write-Host "❌ Failed to create database '$dbName': $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "    ❌ Failed: $($_.Exception.Message)" -ForegroundColor Red
         }
     }
     
