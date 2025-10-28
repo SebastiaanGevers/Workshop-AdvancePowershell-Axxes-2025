@@ -1,17 +1,9 @@
 # PowerShell DBA Tools Workshop - Solutions
 # Workshop 2025 - Axxes
 
-Write-Host @"
-=============================================================================
-DBA TOOLS WORKSHOP - SOLUTIONS
-=============================================================================
-"@
-
 # =============================================================================
 # OEFENING 1: Module Installation and Verification - SOLUTIONS
 # =============================================================================
-Write-Host "`n=== OEFENING 1: Module Installation and Verification ===" -ForegroundColor Green
-
 # Check if the dbatools module is installed
 $dbatoolsModule = Get-Module -ListAvailable -Name dbatools
 if ($dbatoolsModule) {
@@ -56,8 +48,6 @@ try {
 # =============================================================================
 # OEFENING 2: Azure Key Vault Connection Setup - SOLUTIONS
 # =============================================================================
-Write-Host "`n=== OEFENING 2: Azure Key Vault Connection Setup ===" -ForegroundColor Green
-
 # Connect to Azure if not already connected
 $azContext = Get-AzContext
 if (-not $azContext) {
@@ -108,8 +98,6 @@ try {
 # =============================================================================
 # OEFENING 3: Secure Database Connection Function - SOLUTIONS
 # =============================================================================
-Write-Host "`n=== OEFENING 3: Secure Database Connection Function ===" -ForegroundColor Green
-
 function Get-DbaConnectionFromKeyVault {
     param(
         [Parameter(Mandatory)]
@@ -161,8 +149,6 @@ try {
 # =============================================================================
 # OEFENING 4: Basic Database Connectivity Testing - SOLUTIONS
 # =============================================================================
-Write-Host "`n=== OEFENING 4: Basic Database Connectivity Testing ===" -ForegroundColor Green
-
 # Test database connection using dbatools
 if ($connectionParams) {
     try {
@@ -252,8 +238,6 @@ if ($connectionResult.Success) {
 # =============================================================================
 # OEFENING 5: Database Discovery and Information Gathering - SOLUTIONS
 # =============================================================================
-Write-Host "`n=== OEFENING 5: Database Discovery and Information Gathering ===" -ForegroundColor Green
-
 if ($connectionParams) {
     try {
         # List all databases
@@ -289,8 +273,6 @@ if ($connectionParams) {
 # =============================================================================
 # OEFENING 6: Database Security Analysis - SOLUTIONS
 # =============================================================================
-Write-Host "`n=== OEFENING 6: Database Security Analysis ===" -ForegroundColor Green
-
 if ($connectionParams) {
     try {
         # List all database logins
@@ -330,8 +312,6 @@ if ($connectionParams) {
 # =============================================================================
 # OEFENING 7: Performance Monitoring and Analysis - SOLUTIONS
 # =============================================================================
-Write-Host "`n=== OEFENING 7: Performance Monitoring and Analysis ===" -ForegroundColor Green
-
 if ($connectionParams) {
     try {
         # Get wait statistics
@@ -376,8 +356,6 @@ if ($connectionParams) {
 # =============================================================================
 # OEFENING 8: Backup Operations with Secure Credentials - SOLUTIONS
 # =============================================================================
-Write-Host "`n=== OEFENING 8: Backup Operations with Secure Credentials ===" -ForegroundColor Green
-
 function Start-SecureDatabaseBackup {
     param(
         [Parameter(Mandatory)]
@@ -454,8 +432,6 @@ Write-Host "# `$backupResult = Start-SecureDatabaseBackup -KeyVaultName `$keyVau
 # =============================================================================
 # OEFENING 9: Database Maintenance Automation - SOLUTIONS
 # =============================================================================
-Write-Host "`n=== OEFENING 9: Database Maintenance Automation ===" -ForegroundColor Green
-
 function Update-DatabaseStatistics {
     param(
         [Parameter(Mandatory)]
@@ -565,8 +541,6 @@ if ($connectionParams) {
 # =============================================================================
 # OEFENING 10: Comprehensive Database Health Check - SOLUTIONS
 # =============================================================================
-Write-Host "`n=== OEFENING 10: Comprehensive Database Health Check ===" -ForegroundColor Green
-
 function Get-DatabaseHealthReport {
     param(
         [Parameter(Mandatory)]
@@ -702,8 +676,6 @@ if ($connectionParams) {
 # =============================================================================
 # CLEANUP AND SESSION MANAGEMENT - SOLUTIONS
 # =============================================================================
-Write-Host "`n=== CLEANUP AND SESSION MANAGEMENT ===" -ForegroundColor Green
-
 function Complete-DbaSession {
     param(
         [string]$KeyVaultName

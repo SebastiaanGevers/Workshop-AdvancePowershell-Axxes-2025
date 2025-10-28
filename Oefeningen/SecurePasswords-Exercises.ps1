@@ -116,17 +116,16 @@
 # OEFENING 7: Azure Key Vault Operations
 # =============================================================================
 # TODO: Create variables for your Azure Key Vault
-# Note: Key Vault names must be globally unique, use format: "kv-workshop-[yourname]"
-$keyVaultName = "kv-workshop-student01"  # Change this to make it unique
-$resourceGroupName = "rg-workshop"       # Use existing or create new resource group
+$keyVaultName = "PS-KEY"  # Replace with your Key Vault name
+$tenantId = "edd1c3b6-be87-43bb-92d4-7a911c5cee17"  # Replace with your tenant ID
 
-# TODO: Check if the Key Vault exists, if not create it
-# Hint: Use Get-AzKeyVault and New-AzKeyVault commands
+# TODO: Check if the Key Vault exists, and attempt to retrieve the secrets from it 
+# Hint: Use Get-AzKeyVault and Get-AzKeyVaultSecret
 
 # Your code here:
 
 
-# TODO: Set Key Vault access policy to allow your user to manage secrets
+# TODO: check Key Vault access policy to see if your user can manage secrets
 # Hint: Use Set-AzKeyVaultAccessPolicy
 
 # Your code here:
@@ -154,69 +153,19 @@ $resourceGroupName = "rg-workshop"       # Use existing or create new resource g
 
 
 # =============================================================================
-# OEFENING 9: Integration with Database Connection
+# OEFENING 9: Cleanup and Security Best Practices
 # =============================================================================
-# TODO: Create a function that retrieves database credentials from Azure Key Vault
-# and returns a hashtable with connection parameters for dbatools
-
-function Get-DatabaseConnectionFromAzure {
-    param(
-        [string]$KeyVaultName
-    )
-    
-    # Your code here:
-    # 1. Retrieve DB-Username, DB-Password, and DB-Server from Key Vault
-    # 2. Create PSCredential object
-    # 3. Return hashtable with SqlInstance and SqlCredential
-    
-}
-
-# TODO: Test your function
-
-# Your code here:
-
-
-# =============================================================================
-# OEFENING 10: Cleanup and Security Best Practices
-# =============================================================================
-# TODO: List all secrets in your Azure Key Vault
-
-# Your code here:
-
-
 # TODO: Create a backup/export of your secrets (for learning purposes only)
 # Note: In production, be very careful with secret exports
 
 # Your code here:
-
-
-# TODO: Optional: Clean up secrets if desired (remove individual secrets)
-# Uncomment and modify as needed:
-# Remove-AzKeyVaultSecret -VaultName $keyVaultName -Name "DB-Username" -Force
-# Remove-AzKeyVaultSecret -VaultName $keyVaultName -Name "DB-Password" -Force
-# Remove-AzKeyVaultSecret -VaultName $keyVaultName -Name "DB-Server" -Force
-
-# Your code here:
-
-
-# TODO: Remove local vault and secrets
-
-# Your code here:
-
 
 # TODO: Disconnect from Azure (optional, but good practice)
 
 # Your code here:
 
 
-# =============================================================================
-# REFLECTION QUESTIONS
-# =============================================================================
-# 1. What are the advantages of using Azure Key Vault over local SecretStore?
-# 2. How does Azure authentication work with PowerShell?
-# 3. What security considerations should you keep in mind when using Key Vault?
-# 4. How would you implement this in a production environment?
-# 5. What are the cost implications of using Azure Key Vault?
+
 
 
 

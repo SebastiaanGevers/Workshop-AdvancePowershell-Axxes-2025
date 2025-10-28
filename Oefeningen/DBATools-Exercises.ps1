@@ -11,26 +11,11 @@
 #    - DB-Username: Database username (e.g., "sa")
 #    - DB-Password: Database password
 #    - DB-Server: Database server connection string (e.g., "localhost" or server name)
-
-Write-Host @"
-=============================================================================
-DBA TOOLS WORKSHOP - PREREQUISITES CHECK
-=============================================================================
-Before starting, ensure you have:
-- Completed SecurePasswords-Exercises.ps1
-- Azure Key Vault with database credentials (DB-Username, DB-Password, DB-Server)
-- Access to a SQL Server instance (local or remote)
-- PowerShell 7+ with required modules
-
-Let's verify the prerequisites...
-=============================================================================
-"@
+#    - Access to a SQL Server instance (local or remote)
 
 # =============================================================================
 # OEFENING 1: Module Installation and Verification
 # =============================================================================
-Write-Host "`n=== OEFENING 1: Module Installation and Verification ===" -ForegroundColor Green
-
 # TODO: Check if the dbatools module is installed
 # If not installed, you'll need to install it: Install-Module dbatools -Force
 
@@ -57,8 +42,6 @@ Write-Host "`n=== OEFENING 1: Module Installation and Verification ===" -Foregro
 # =============================================================================
 # OEFENING 2: Azure Key Vault Connection Setup
 # =============================================================================
-Write-Host "`n=== OEFENING 2: Azure Key Vault Connection Setup ===" -ForegroundColor Green
-
 # TODO: Connect to Azure if not already connected
 # Hint: Check Get-AzContext first
 
@@ -77,8 +60,6 @@ $keyVaultName = "your-keyvault-name-here"  # Replace with your actual Key Vault 
 # =============================================================================
 # OEFENING 3: Secure Database Connection Function
 # =============================================================================
-Write-Host "`n=== OEFENING 3: Secure Database Connection Function ===" -ForegroundColor Green
-
 # TODO: Create a function to retrieve database connection parameters from Azure Key Vault
 # This function should return a hashtable that can be used with dbatools commands
 
@@ -104,8 +85,6 @@ function Get-DbaConnectionFromKeyVault {
 # =============================================================================
 # OEFENING 4: Basic Database Connectivity Testing
 # =============================================================================
-Write-Host "`n=== OEFENING 4: Basic Database Connectivity Testing ===" -ForegroundColor Green
-
 # TODO: Use Test-DbaConnection to verify you can connect to your database
 # Use the connection parameters from your function
 
@@ -135,8 +114,6 @@ function Test-SecureDatabaseConnection {
 # =============================================================================
 # OEFENING 5: Database Discovery and Information Gathering
 # =============================================================================
-Write-Host "`n=== OEFENING 5: Database Discovery and Information Gathering ===" -ForegroundColor Green
-
 # TODO: Use Get-DbaDatabase to list all databases on your server
 # Use the secure connection from your Key Vault
 
@@ -164,8 +141,6 @@ Write-Host "`n=== OEFENING 5: Database Discovery and Information Gathering ===" 
 # =============================================================================
 # OEFENING 6: Database Security Analysis
 # =============================================================================
-Write-Host "`n=== OEFENING 6: Database Security Analysis ===" -ForegroundColor Green
-
 # TODO: List all database logins and their properties
 # Hint: Use Get-DbaLogin
 
@@ -192,8 +167,6 @@ Write-Host "`n=== OEFENING 6: Database Security Analysis ===" -ForegroundColor G
 # =============================================================================
 # OEFENING 7: Performance Monitoring and Analysis
 # =============================================================================
-Write-Host "`n=== OEFENING 7: Performance Monitoring and Analysis ===" -ForegroundColor Green
-
 # TODO: Get current wait statistics to identify performance bottlenecks
 # Hint: Use Get-DbaWaitStatistic
 
@@ -221,8 +194,6 @@ Write-Host "`n=== OEFENING 7: Performance Monitoring and Analysis ===" -Foregrou
 # =============================================================================
 # OEFENING 8: Backup Operations with Secure Credentials
 # =============================================================================
-Write-Host "`n=== OEFENING 8: Backup Operations with Secure Credentials ===" -ForegroundColor Green
-
 # TODO: Create a secure backup function that uses Azure Key Vault credentials
 function Start-SecureDatabaseBackup {
     param(
@@ -254,8 +225,6 @@ function Start-SecureDatabaseBackup {
 # =============================================================================
 # OEFENING 9: Database Maintenance Automation
 # =============================================================================
-Write-Host "`n=== OEFENING 9: Database Maintenance Automation ===" -ForegroundColor Green
-
 # TODO: Create a function to update database statistics using secure credentials
 function Update-DatabaseStatistics {
     param(
@@ -298,8 +267,6 @@ function Optimize-DatabaseIndexes {
 # =============================================================================
 # OEFENING 10: Comprehensive Database Health Check
 # =============================================================================
-Write-Host "`n=== OEFENING 10: Comprehensive Database Health Check ===" -ForegroundColor Green
-
 # TODO: Create a comprehensive health check function that combines multiple checks
 function Get-DatabaseHealthReport {
     param(
@@ -330,8 +297,6 @@ function Get-DatabaseHealthReport {
 # =============================================================================
 # OEFENING 11: Error Handling and Logging
 # =============================================================================
-Write-Host "`n=== OEFENING 11: Error Handling and Logging ===" -ForegroundColor Green
-
 # TODO: Create a wrapper function that adds comprehensive logging to any DBA operation
 function Invoke-SecureDbaOperation {
     param(
@@ -361,8 +326,6 @@ function Invoke-SecureDbaOperation {
 # =============================================================================
 # OEFENING 12: Advanced Monitoring and Alerting Setup
 # =============================================================================
-Write-Host "`n=== OEFENING 12: Advanced Monitoring and Alerting Setup ===" -ForegroundColor Green
-
 # TODO: Create a function to monitor critical database metrics
 function Start-DatabaseMonitoring {
     param(
@@ -410,8 +373,6 @@ function Test-DatabaseThresholds {
 # =============================================================================
 # OEFENING 13: Disaster Recovery Preparation
 # =============================================================================
-Write-Host "`n=== OEFENING 13: Disaster Recovery Preparation ===" -ForegroundColor Green
-
 # TODO: Create a function to document current database configuration
 function Export-DatabaseConfiguration {
     param(
@@ -455,8 +416,6 @@ function Test-DatabaseBackups {
 # =============================================================================
 # OEFENING 14: Automation and Scheduling
 # =============================================================================
-Write-Host "`n=== OEFENING 14: Automation and Scheduling ===" -ForegroundColor Green
-
 # TODO: Create a daily maintenance script that uses your secure functions
 function Start-DailyMaintenance {
     param(
@@ -504,8 +463,6 @@ function New-MaintenanceReport {
 # =============================================================================
 # OEFENING 15: Security Audit and Compliance
 # =============================================================================
-Write-Host "`n=== OEFENING 15: Security Audit and Compliance ===" -ForegroundColor Green
-
 # TODO: Create a comprehensive security audit function
 function Start-DatabaseSecurityAudit {
     param(
@@ -550,8 +507,6 @@ function Test-DatabaseCompliance {
 # =============================================================================
 # CLEANUP AND SESSION MANAGEMENT
 # =============================================================================
-Write-Host "`n=== CLEANUP AND SESSION MANAGEMENT ===" -ForegroundColor Green
-
 # TODO: Create a function to clean up the session securely
 function Complete-DbaSession {
     param(
@@ -571,110 +526,3 @@ function Complete-DbaSession {
 
 # Your code here:
 
-
-# =============================================================================
-# WORKSHOP REFLECTION QUESTIONS
-# =============================================================================
-Write-Host @"
-
-=============================================================================
-WORKSHOP REFLECTION QUESTIONS
-=============================================================================
-
-Please consider and discuss these questions:
-
-1. Security and Best Practices:
-   • How does using Azure Key Vault improve database security compared to 
-     storing credentials in scripts or configuration files?
-   • What are the key benefits of integrating dbatools with centralized 
-     credential management?
-   • How would you implement credential rotation in this setup?
-
-2. Automation and Efficiency:
-   • Which DBA tasks benefit most from PowerShell automation?
-   • How can you ensure automated scripts don't cause performance issues?
-   • What safeguards should be in place for automated maintenance?
-
-3. Monitoring and Alerting:
-   • What database metrics are most critical to monitor continuously?
-   • How would you implement 24/7 monitoring using these techniques?
-   • What thresholds would you set for different alert levels?
-
-4. Disaster Recovery:
-   • How do these tools help with disaster recovery planning?
-   • What additional steps would you take for a complete DR solution?
-   • How would you test your disaster recovery procedures?
-
-5. Production Implementation:
-   • How would you roll out these practices in a production environment?
-   • What training would be needed for other team members?
-   • How would you handle different environments (Dev/Test/Prod)?
-
-6. Compliance and Auditing:
-   • How do these practices support regulatory compliance?
-   • What documentation is needed for audit purposes?
-   • How would you demonstrate security controls to auditors?
-
-=============================================================================
-"@
-
-# =============================================================================
-# ADDITIONAL CHALLENGES (Optional Advanced Exercises)
-# =============================================================================
-Write-Host @"
-
-=============================================================================
-ADDITIONAL CHALLENGES (For Advanced Students)
-=============================================================================
-
-If you've completed all exercises, try these advanced challenges:
-
-🚀 CHALLENGE 1: Multi-Server Management
-   Create functions to manage multiple SQL Server instances using a 
-   configuration file that maps servers to their Key Vault credentials.
-
-🚀 CHALLENGE 2: PowerShell Module Creation
-   Package your functions into a proper PowerShell module with:
-   - Module manifest
-   - Help documentation
-   - Parameter validation
-   - Error handling
-
-🚀 CHALLENGE 3: Integration with Azure Monitor
-   Set up Azure Monitor integration to send database metrics and alerts
-   to Azure Log Analytics.
-
-🚀 CHALLENGE 4: Automated Failover Testing
-   Create scripts to test high availability and disaster recovery scenarios
-   automatically.
-
-🚀 CHALLENGE 5: Compliance Reporting
-   Build automated compliance reports that check against industry standards
-   (CIS, NIST, etc.) and generate executive dashboards.
-
-🚀 CHALLENGE 6: Performance Baseline and Trending
-   Implement performance baseline collection and trending analysis to
-   identify gradual performance degradation.
-
-=============================================================================
-"@
-
-Write-Host @"
-
-🎉 Congratulations on completing the DBA Tools Workshop! 🎉
-
-You've learned to:
-- Integrate dbatools with Azure Key Vault for secure credential management
-- Automate common database administration tasks
-- Implement monitoring and alerting for database health
-- Create disaster recovery and maintenance procedures
-- Build security auditing and compliance checks
-- Develop production-ready automation scripts
-
-These skills will help you manage SQL Server environments more securely,
-efficiently, and reliably. Keep practicing and expanding these techniques
-in your production environments!
-
-Happy Database Administration! 🗃️⚡
-
-"@

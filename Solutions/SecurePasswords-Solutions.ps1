@@ -71,7 +71,7 @@ Write-Host "Registered vaults:"
 $vaults | Format-Table Name, ModuleName, IsDefault
 
 # =============================================================================
-# OEFENING 4: Storing and Retrieving Secrets
+# OEFENING 4: Storing and Retrieving Local Secrets
 # =============================================================================
 # TODO: Store the following secrets in your "WorkshopVault":
 # - Name: "DatabasePassword", Value: "DbSecret2024!"
@@ -214,49 +214,63 @@ $subscriptions | Format-Table Name, Id, State
 # OEFENING 7: Azure Key Vault Operations
 # =============================================================================
 # TODO: Create variables for your Azure Key Vault
-# Note: Key Vault names must be globally unique, use format: "kv-workshop-[yourname]"
-$keyVaultName = "kv-workshop-student01"  # Change this to make it unique
-$resourceGroupName = "rg-workshop"       # Use existing or create new resource group
+$keyVaultName = "PS-KEY"  # Replace with your Key Vault name
+$tenantId = "edd1c3b6-be87-43bb-92d4-7a911c5cee17"  # Replace with your tenant ID
 
-# TODO: Check if the Key Vault exists, if not create it
-# Hint: Use Get-AzKeyVault and New-AzKeyVault commands
+# TODO: Check if the Key Vault exists, and attempt to retrieve the secrets from it 
+# Hint: Use Get-AzKeyVault and Get-AzKeyVaultSecret
 
 # SOLUTION:
 try {
     $existingKeyVault = Get-AzKeyVault -VaultName $keyVaultName -ErrorAction SilentlyContinue
     
     if ($existingKeyVault) {
-        Write-Host "Key Vault '$keyVaultName' already exists"
-    } else {
-        Write-Host "Creating Key Vault '$keyVaultName'..."
+        Write-Host "Key Vault '$keyVaultName' exists"
+        Write-Host "Location: $($existingKeyVault.Location)"
+        Write-Host "Resource Group: $($existingKeyVault.ResourceGroupName)"
         
-        # Check if resource group exists, create if it doesn't
-        $resourceGroup = Get-AzResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue
-        if (-not $resourceGroup) {
-            New-AzResourceGroup -Name $resourceGroupName -Location "West Europe"
-            Write-Host "Created resource group '$resourceGroupName'"
+        # Try to list secrets
+        try {
+            $secrets = Get-AzKeyVaultSecret -VaultName $keyVaultName
+            Write-Host "Found $($secrets.Count) secrets in the Key Vault"
+            $secrets | Format-Table Name, Enabled, Created
+        } catch {
+            Write-Host "Unable to access secrets. Check permissions: $($_.Exception.Message)"
         }
-        
-        # Create the Key Vault
-        $newKeyVault = New-AzKeyVault -VaultName $keyVaultName -ResourceGroupName $resourceGroupName -Location "West Europe"
-        Write-Host "Created Key Vault '$keyVaultName' successfully"
+    } else {
+        Write-Host "Key Vault '$keyVaultName' does not exist or you don't have access to it"
     }
 } catch {
-    Write-Host "Error with Key Vault operations: $($_.Exception.Message)"
+    Write-Host "Error accessing Key Vault: $($_.Exception.Message)"
 }
 
-# TODO: Set Key Vault access policy to allow your user to manage secrets
+# TODO: check Key Vault access policy to see if your user can manage secrets
 # Hint: Use Set-AzKeyVaultAccessPolicy
 
 # SOLUTION:
 try {
     $context = Get-AzContext
-    $userObjectId = (Get-AzADUser -UserPrincipalName $context.Account.Id).Id
-    
-    Set-AzKeyVaultAccessPolicy -VaultName $keyVaultName -ObjectId $userObjectId -PermissionsToSecrets Get,Set,Delete,List
-    Write-Host "Access policy set for user: $($context.Account.Id)"
+    if ($context) {
+        Write-Host "Current user: $($context.Account.Id)"
+        
+        # Check if we can access the vault and set access policy if needed
+        try {
+            $vaultInfo = Get-AzKeyVault -VaultName $keyVaultName
+            Write-Host "Key Vault access confirmed for: $($vaultInfo.VaultName)"
+            
+            # Try to set access policy for current user
+            $userObjectId = (Get-AzADUser -UserPrincipalName $context.Account.Id).Id
+            Set-AzKeyVaultAccessPolicy -VaultName $keyVaultName -ObjectId $userObjectId -PermissionsToSecrets Get,Set,Delete,List
+            Write-Host "Access policy updated for user: $($context.Account.Id)"
+        } catch {
+            Write-Host "Error setting access policy: $($_.Exception.Message)"
+            Write-Host "You may need to contact the Key Vault administrator for access"
+        }
+    } else {
+        Write-Host "No Azure context found. Please connect to Azure first."
+    }
 } catch {
-    Write-Host "Error setting access policy: $($_.Exception.Message)"
+    Write-Host "Error checking access policy: $($_.Exception.Message)"
 }
 
 # =============================================================================
@@ -290,24 +304,14 @@ try {
 # TODO: Retrieve and display all stored secrets (use -AsPlainText to verify)
 
 # SOLUTION:
-try {
     # List all secrets
     $secrets = Get-AzKeyVaultSecret -VaultName $keyVaultName
-    Write-Host "Secrets in Azure Key Vault:"
-    $secrets | Format-Table Name, Created, Updated
+    Write-Host "Secrets in Azure Key Vault:" 
+    foreach ($secret in $secrets) {
+        $secretValue = (Get-AzKeyVaultSecret -VaultName $keyVaultName -Name $secret.Name -AsPlainText)
+        Write-Host "Secret Name: $($secret.Name), Value: $secretValue"
+    }
     
-    # Retrieve specific secrets
-    $dbUsername = (Get-AzKeyVaultSecret -VaultName $keyVaultName -Name "DB-Username" -AsPlainText)
-    $dbPassword = (Get-AzKeyVaultSecret -VaultName $keyVaultName -Name "DB-Password" -AsPlainText)
-    $dbServer = (Get-AzKeyVaultSecret -VaultName $keyVaultName -Name "DB-Server" -AsPlainText)
-    
-    Write-Host "Retrieved values:"
-    Write-Host "DB Username: $dbUsername"
-    Write-Host "DB Password: $dbPassword"
-    Write-Host "DB Server: $dbServer"
-} catch {
-    Write-Host "Error retrieving secrets: $($_.Exception.Message)"
-}
 
 # TODO: Create a PSCredential object using the retrieved username and password
 
@@ -324,72 +328,10 @@ try {
     Write-Host "Error creating PSCredential: $($_.Exception.Message)"
 }
 
-# =============================================================================
-# OEFENING 9: Integration with Database Connection
-# =============================================================================
-# TODO: Create a function that retrieves database credentials from Azure Key Vault
-# and returns a hashtable with connection parameters for dbatools
-
-function Get-DatabaseConnectionFromAzure {
-    param(
-        [string]$KeyVaultName
-    )
-    
-    # SOLUTION:
-    try {
-        # 1. Retrieve DB-Username, DB-Password, and DB-Server from Key Vault
-        $dbUsername = (Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name "DB-Username" -AsPlainText)
-        $dbPasswordPlain = (Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name "DB-Password" -AsPlainText)
-        $dbServer = (Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name "DB-Server" -AsPlainText)
-        
-        # 2. Create PSCredential object
-        $dbPasswordSecure = ConvertTo-SecureString $dbPasswordPlain -AsPlainText -Force
-        $dbCredential = [PSCredential]::new($dbUsername, $dbPasswordSecure)
-        
-        # 3. Return hashtable with SqlInstance and SqlCredential
-        return @{
-            SqlInstance = $dbServer
-            SqlCredential = $dbCredential
-        }
-    } catch {
-        Write-Error "Failed to retrieve database connection from Azure Key Vault: $($_.Exception.Message)"
-        return $null
-    }
-}
-
-# TODO: Test your function
-
-# SOLUTION:
-try {
-    $connectionParams = Get-DatabaseConnectionFromAzure -KeyVaultName $keyVaultName
-    if ($connectionParams) {
-        Write-Host "Function test successful!"
-        Write-Host "SQL Instance: $($connectionParams.SqlInstance)"
-        Write-Host "SQL Credential Username: $($connectionParams.SqlCredential.UserName)"
-        
-        # Example usage with dbatools (if module is available)
-        if (Get-Module -ListAvailable -Name dbatools) {
-            # Test-DbaConnection @connectionParams
-            Write-Host "Ready to use with dbatools: Test-DbaConnection @connectionParams"
-        }
-    }
-} catch {
-    Write-Host "Function test failed: $($_.Exception.Message)"
-}
 
 # =============================================================================
-# OEFENING 10: Cleanup and Security Best Practices
+# OEFENING 9: Cleanup and Security Best Practices
 # =============================================================================
-# TODO: List all secrets in your Azure Key Vault
-
-# SOLUTION:
-try {
-    $allSecrets = Get-AzKeyVaultSecret -VaultName $keyVaultName
-    Write-Host "All secrets in Azure Key Vault '$keyVaultName':"
-    $allSecrets | Format-Table Name, Enabled, Created, Updated
-} catch {
-    Write-Host "Error listing secrets: $($_.Exception.Message)"
-}
 
 # TODO: Create a backup/export of your secrets (for learning purposes only)
 # Note: In production, be very careful with secret exports
