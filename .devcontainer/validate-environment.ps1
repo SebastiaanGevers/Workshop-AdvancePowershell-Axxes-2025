@@ -7,6 +7,7 @@ Write-Host ""
 # Test 1: Check if dbatools module is available
 Write-Host "1️⃣ Checking dbatools module..." -ForegroundColor Yellow
 try {
+    Install-Module dbatools
     Import-Module dbatools -ErrorAction Stop
     $dbatoolsVersion = (Get-Module dbatools).Version
     Write-Host "   ✅ dbatools $dbatoolsVersion loaded successfully" -ForegroundColor Green
@@ -32,6 +33,7 @@ try {
 }
 
 # Test 3: Test database connection
+Set-DbatoolsInsecureConnection # Allow insecure connections for local dev environment
 Write-Host "3️⃣ Testing database connection..." -ForegroundColor Yellow
 try {
     # Create secure credential
@@ -42,7 +44,7 @@ try {
     Start-Sleep -Seconds 5
     
     # Test connection with certificate trust
-    $testResult = Test-DbaConnection -SqlInstance localhost -SqlCredential $cred -TrustServerCertificate
+    $testResult = Test-DbaConnection -SqlInstance localhost -SqlCredential $cred
     
     if ($testResult.ConnectSuccess) {
         Write-Host "   ✅ Database connection successful" -ForegroundColor Green
@@ -60,14 +62,14 @@ try {
 # Test 4: Check if sample databases exist
 Write-Host "4️⃣ Checking sample databases..." -ForegroundColor Yellow
 try {
-    $databases = Get-DbaDatabase -SqlInstance localhost -SqlCredential $cred -TrustServerCertificate
+    $databases = Get-DbaDatabase -SqlInstance localhost -SqlCredential $cred
     $workshopDb = $databases | Where-Object { $_.Name -eq "WorkshopDB" }
     
     if ($workshopDb) {
         Write-Host "   ✅ WorkshopDB found" -ForegroundColor Green
         
         # Check for sample data
-        $employeeCount = Invoke-DbaQuery -SqlInstance localhost -SqlCredential $cred -Database WorkshopDB -TrustServerCertificate -Query "SELECT COUNT(*) as Count FROM Employees"
+        $employeeCount = Invoke-DbaQuery -SqlInstance localhost -SqlCredential $cred -Database WorkshopDB -Query "SELECT COUNT(*) as Count FROM Employees"
         Write-Host "   📈 Employee records: $($employeeCount.Count)" -ForegroundColor Gray
     } else {
         Write-Host "   ❌ WorkshopDB not found" -ForegroundColor Red
@@ -81,15 +83,15 @@ try {
 Write-Host "5️⃣ Testing key dbatools commands..." -ForegroundColor Yellow
 try {
     # Test database listing
-    $dbCount = (Get-DbaDatabase -SqlInstance localhost -SqlCredential $cred -TrustServerCertificate).Count
+    $dbCount = (Get-DbaDatabase -SqlInstance localhost -SqlCredential $cred).Count
     Write-Host "   ✅ Get-DbaDatabase: Found $dbCount databases" -ForegroundColor Green
     
     # Test backup history
-    $backupHistory = Get-DbaDbBackupHistory -SqlInstance localhost -SqlCredential $cred -TrustServerCertificate | Select-Object -First 1
+    $backupHistory = Get-DbaDbBackupHistory -SqlInstance localhost -SqlCredential $cred | Select-Object -First 1
     Write-Host "   ✅ Get-DbaDbBackupHistory: Command executed successfully" -ForegroundColor Green
     
     # Test space usage
-    $spaceInfo = Get-DbaDbSpace -SqlInstance localhost -SqlCredential $cred -TrustServerCertificate | Select-Object -First 1
+    $spaceInfo = Get-DbaDbSpace -SqlInstance localhost -SqlCredential $cred | Select-Object -First 1
     Write-Host "   ✅ Get-DbaDbSpace: Command executed successfully" -ForegroundColor Green
     
 } catch {

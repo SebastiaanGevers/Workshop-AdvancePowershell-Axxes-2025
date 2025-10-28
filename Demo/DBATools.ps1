@@ -24,7 +24,7 @@ $connectionParams = @{
 # --------------------------------------------------
 # 1.1 Test Database Connection
 # Command: Test-DbaConnection
-$connectionTest = Test-DbaConnection @connectionParams
+$connectionTest = Test-DbaConnection @connectionParams # Example not everything works on all operating systems
 $connectionTest | Select-Object SqlInstance, ConnectSuccess, SqlVersion, Edition, ProductLevel | Format-Table -AutoSize
 
 # 1.2 Get Server Information
@@ -88,9 +88,12 @@ Get-DbaDbTable @connectionParams -Database WorkshopDB |
     Format-Table -AutoSize
 
 # 3.2 Get Table Column Information
-# Command: Get-DbaDbTableSpace (for detailed table info)
-Get-DbaDbTableSpace @connectionParams -Database WorkshopDB |
-    Select-Object Database, Schema, Name, Rows, @{Name="DataKB";Expression={[math]::Round($_.DataKB,2)}}, @{Name="IndexKB";Expression={[math]::Round($_.IndexKB,2)}} |
+# Command: Get-DbaDbTable (for detailed table info)
+Get-DbaDbTable @connectionParams -Database WorkshopDB |
+    Select-Object Database, Schema, Name, RowCount, 
+        @{Name="DataSizeMB";Expression={[math]::Round($_.DataSpaceUsed/1024, 2)}},
+        @{Name="IndexSizeMB";Expression={[math]::Round($_.IndexSpaceUsed/1024, 2)}},
+        @{Name="TotalSizeMB";Expression={[math]::Round(($_.DataSpaceUsed + $_.IndexSpaceUsed)/1024, 2)}} |
     Format-Table -AutoSize
 
 # 3.3 Query Sample Data
@@ -106,43 +109,6 @@ ORDER BY Salary DESC
 "@
 
 Invoke-DbaQuery @connectionParams -Database WorkshopDB -Query $sampleQuery | Format-Table -AutoSize
-
-#endregion
-
-#region Step 4 - Index Management
-# STEP 4: Index Analysis and Management
-# ----------------------------------------
-
-# 4.1 List All Indexes
-# Command: Get-DbaDbIndex
-Get-DbaDbIndex @connectionParams -Database WorkshopDB |
-    Where-Object { $_.Table -eq "Employees" } |
-    Select-Object Database, Table, Name, IndexType, IsUnique, KeyColumns |
-    Format-Table -AutoSize
-
-# 4.2 Index Usage Statistics
-# Command: Get-DbaIndexUsage
-try {
-    Get-DbaIndexUsage @connectionParams -Database WorkshopDB |
-        Where-Object { $_.Table -eq "Employees" } |
-        Select-Object Database, Table, Index, UserSeeks, UserScans, UserLookups, UserUpdates |
-        Format-Table -AutoSize
-} catch {
-    # (Index usage statistics require server activity)
-}
-
-# 4.3 Missing Index Suggestions
-# Command: Get-DbaMissingIndex
-try {
-    $missingIndexes = Get-DbaMissingIndex @connectionParams -Database WorkshopDB
-    if ($missingIndexes) {
-        $missingIndexes | Select-Object Database, Table, Equality_Columns, Inequality_Columns, Improvement_Measure | Format-Table -AutoSize
-    } else {
-        # No missing index recommendations found
-    }
-} catch {
-    # (Missing indexes require query activity to generate recommendations)
-}
 
 #endregion
 
@@ -257,49 +223,6 @@ Get-DbaDbSpace @connectionParams |
 
 #endregion
 
-#region Step 8 - Maintenance Operations
-# STEP 8: Database Maintenance Operations
-# ------------------------------------------
-
-# 8.1 Check Database Integrity
-# Command: Invoke-DbaDbcc
-try {
-    $integrityCheck = Invoke-DbaDbcc @connectionParams -Database WorkshopDB -Command CheckDb -NoInfoMsgs
-    # Database integrity check completed
-    if ($integrityCheck.Output) {
-        # Results: $($integrityCheck.Output -join '; ')
-    }
-} catch {
-    # Integrity check failed: $($_.Exception.Message)
-}
-
-# 8.2 Update Database Statistics
-# Command: Update-DbaStatistics
-try {
-    Update-DbaStatistics @connectionParams -Database WorkshopDB | Out-Null
-    # Statistics updated successfully
-} catch {
-    # Statistics update completed (results may vary)
-}
-
-# 8.3 Index Fragmentation Analysis
-# Command: Get-DbaDbFragmentation
-try {
-    $fragmentation = Get-DbaDbFragmentation @connectionParams -Database WorkshopDB
-    if ($fragmentation) {
-        $fragmentation | 
-            Where-Object { $_.FragmentationPercent -gt 0 } |
-            Select-Object Database, Table, Index, @{Name="FragmentationPercent";Expression={[math]::Round($_.FragmentationPercent,2)}}, PageCount |
-            Format-Table -AutoSize
-    } else {
-        # No fragmentation data available (tables may be too small)
-    }
-} catch {
-    # Fragmentation analysis not available for small databases
-}
-
-#endregion
-
 #region Step 9 - Data Migration and Copy
 # STEP 9: Data Migration and Copy Operations
 # ---------------------------------------------
@@ -332,111 +255,10 @@ try {
     # Data copy operation failed: $($_.Exception.Message)
 }
 
-# 9.2 Export Database Objects
-# Command: Export-DbaScript
-try {
-    # Export table creation scripts
-    $exportPath = "/tmp/workshop_export.sql"
-    Export-DbaScript @connectionParams -Database WorkshopDB -FilePath $exportPath -ScriptingOptionsObject (New-DbaScriptingOption -ScriptIndexes -ScriptData)
-    # Database objects exported to $exportPath
-} catch {
-    # Export operation may require additional permissions
-}
-
 #endregion
-
-#region Step 10 - Advanced Administration
-# STEP 10: Advanced Database Administration
-# ---------------------------------------------
-
-# 10.1 Database Property Management
-# Command: Get-DbaDbProperty and Set-DbaDbProperty
-$dbProperties = Get-DbaDbProperty @connectionParams -Database WorkshopDB
-$dbProperties | 
-    Where-Object { $_.Property -in @("AutoShrink", "AutoClose", "RecoveryModel", "PageVerify") } |
-    Select-Object Database, Property, Value |
-    Format-Table -AutoSize
-
-# 10.2 Server Configuration Analysis
-# Command: Get-DbaMaxMemory and Get-DbaOptimalMemory
-try {
-    Get-DbaMaxMemory @connectionParams | Select-Object MaxValue | Format-Table -AutoSize
-    Get-DbaOptimalMemory @connectionParams | Select-Object RecommendedValue | Format-Table -AutoSize
-    
-    # Current and recommended memory values displayed above
-} catch {
-    # Memory configuration analysis not available in container
-}
-
-# 10.3 Database Snapshot Operations
-# Command: New-DbaDbSnapshot
-try {
-    $snapshot = New-DbaDbSnapshot @connectionParams -Database WorkshopDB -Name "WorkshopDB_Snapshot"
-    if ($snapshot) {
-        # Database snapshot created: $($snapshot.Name)
-        
-        # List snapshots
-        Get-DbaDbSnapshot @connectionParams | 
-            Select-Object Database, SnapshotOf, CreateDate | 
-            Format-Table -AutoSize
-    }
-} catch {
-    # Snapshot creation may not be available in all SQL Server editions
-}
-
-# 10.4 Query Store Analysis
-# Command: Get-DbaQueryStore
-try {
-    $queryStore = Get-DbaQueryStore @connectionParams -Database WorkshopDB
-    if ($queryStore) {
-        $queryStore | Select-Object Database, ActualState, DataFlushIntervalSeconds, MaxSizeMode | Format-Table -AutoSize
-    } else {
-        # Query Store not enabled on WorkshopDB
-    }
-} catch {
-    # Query Store features require SQL Server 2016+
-}
-
-#endregion
-
-#region Summary
-# DBA Tools Training Showcase - COMPLETE!
-# ==========================================
-
-# Commands Demonstrated:
-
-# Connection & Discovery:
-#   • Test-DbaConnection, Get-DbaComputerSystem, Get-DbaSpConfigure
-
-# Database Management:  
-#   • Get-DbaDatabase, Get-DbaDbSpace, Get-DbaDbFile
-
-# Tables & Schema:
-#   • Get-DbaDbTable, Get-DbaDbTableSpace, Invoke-DbaQuery
-
-# Index Management:
-#   • Get-DbaDbIndex, Get-DbaIndexUsage, Get-DbaMissingIndex
-
-# Security & Users:
-#   • Get-DbaLogin, Get-DbaDbUser, Get-DbaDbRole, Get-DbaServerRole
-
-# Backup & Recovery:
-#   • Get-DbaDbBackupHistory, Backup-DbaDatabase, Test-DbaLastBackup
-
-# Performance Monitoring:
-#   • Get-DbaProcess, Get-DbaWaitStatistic, Get-DbaDbGrowthEvent
-
-# Maintenance:
-#   • Invoke-DbaDbcc, Update-DbaStatistics, Get-DbaDbFragmentation
-
-# Data Migration:
-#   • Copy-DbaDbTableData, Export-DbaScript
-
-# Advanced Admin:
-#   • Get-DbaDbProperty, Get-DbaMaxMemory, New-DbaDbSnapshot
 
 # Key Learning Points:
-#   • dbatools provides 500+ PowerShell commands for SQL Server
+#   • dbatools provides 700+ PowerShell commands for SQL Server
 #   • Consistent parameter naming across all commands
 #   • Works with SQL Server 2000 through 2022
 #   • Pipeline-friendly output for easy filtering and formatting
@@ -446,6 +268,3 @@ try {
 #   • Official Site: https://dbatools.io
 #   • GitHub: https://github.com/dataplat/dbatools
 #   • Documentation: https://docs.dbatools.io
-
-# Training Complete! Ready for hands-on exercises.
-#endregion
