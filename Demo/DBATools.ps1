@@ -2,6 +2,7 @@
 # STEP 0: Prerequisites and Setup
 # ------------------------------
 # 1. Import dbatools module
+Install-Module dbatools
 Import-Module dbatools -Force
 
 # 2. Set up connection credentials

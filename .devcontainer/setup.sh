@@ -48,8 +48,7 @@ pwsh -Command "
 
 # Create sample databases
 echo "📊 Creating sample databases..."
-pwsh -File /workspaces/Code/.devcontainer/create-workshop-db.ps1
-
+pwsh -File /workspaces/Code/.devcontainer/create-workshop-db-simple.ps1
 echo "🎉 DBA Tools Workshop environment ready!"
 echo ""
 echo "🔗 Connection Details:"
