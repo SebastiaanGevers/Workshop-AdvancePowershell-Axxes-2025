@@ -11,10 +11,23 @@
 # Your code here:
 
 
+# Create a PSCredential object for the exercise.
+# NOTE: This uses a plain text string to build a SecureString for learning purposes only.
+$plainPassword = 'Exercise2024!'
+$securePassword = ConvertTo-SecureString -String $plainPassword -AsPlainText -Force
+
+# Create the PSCredential using the SecureString
+$Credential = New-Object System.Management.Automation.PSCredential -ArgumentList 'Workshop\Student', $securePassword
+
 # TODO: Display the username and test if the credential object was created correctly
 
 # Your code here:
-
+Write-Host "Credential UserName: $($Credential.UserName)"
+if ($Credential -is [System.Management.Automation.PSCredential]) {
+    write-host "$Credential | get-member.UserName" -ForegroundColor Green
+} else {
+	Write-Error 'PSCREDENTIAL creation failed.'
+}
 
 # =============================================================================
 # OEFENING 2: SecretManagement Module - Basic Operations
