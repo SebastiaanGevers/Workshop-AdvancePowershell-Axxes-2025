@@ -1,6 +1,9 @@
 # PowerShell Performance Analysis - Deliberately Slow Code Sample
 # Workshop 2025 - Axxes
 # This script contains intentionally inefficient code patterns for profiler demonstration
+# Install-Module Profiler
+# $Temp = Trace-Script -ScriptBlock {& .\Demeo\Profiler.ps1}
+
 
 Write-Host "=== PowerShell Performance Analysis - Slow Code Sample ===" -ForegroundColor Red
 Write-Host "This script demonstrates common performance anti-patterns for profiler analysis" -ForegroundColor Yellow
@@ -11,7 +14,7 @@ Write-Host "This script demonstrates common performance anti-patterns for profil
 function Test-SlowArrayGrowth {
     param([int]$Size = 5000)
     
-    Write-Host "`n1. Testing Dynamic Array Growth (Very Slow!)..." -ForegroundColor Red
+    Write-Host "1. Testing Dynamic Array Growth (Very Slow!)..." -ForegroundColor Red
     
     $dynamicArray = @()
     $startTime = Get-Date
@@ -51,7 +54,7 @@ function Test-SlowArrayGrowth {
 function Test-SlowPipelineFilters {
     param([array]$Data)
     
-    Write-Host "`n2. Testing Multiple Pipeline Filters (Inefficient)..." -ForegroundColor Red
+    Write-Host "2. Testing Multiple Pipeline Filters (Inefficient)..." -ForegroundColor Red
     
     $startTime = Get-Date
     
@@ -77,7 +80,7 @@ function Test-SlowPipelineFilters {
 function Test-SlowRegexInLoop {
     param([array]$Data)
     
-    Write-Host "`n3. Testing Regex Compilation in Loop (Very Inefficient)..." -ForegroundColor Red
+    Write-Host "3. Testing Regex Compilation in Loop (Very Inefficient)..." -ForegroundColor Red
     
     $startTime = Get-Date
     $validEmails = @()
@@ -112,7 +115,7 @@ function Test-SlowRegexInLoop {
 function Test-SlowStringOperations {
     param([array]$Data)
     
-    Write-Host "`n4. Testing Inefficient String Operations..." -ForegroundColor Red
+    Write-Host "4. Testing Inefficient String Operations..." -ForegroundColor Red
     
     $startTime = Get-Date
     $report = ""
@@ -147,7 +150,7 @@ function Test-SlowStringOperations {
 function Test-SlowNestedLoops {
     param([array]$Data)
     
-    Write-Host "`n5. Testing Nested Loops with Inefficient Lookups..." -ForegroundColor Red
+    Write-Host "5. Testing Nested Loops with Inefficient Lookups..." -ForegroundColor Red
     
     $startTime = Get-Date
     $departments = @("IT", "HR", "Finance", "Marketing")
@@ -202,7 +205,7 @@ function Test-SlowNestedLoops {
 function Test-SlowFileOperations {
     param([array]$Data)
     
-    Write-Host "`n6. Testing Expensive File Operations in Loop..." -ForegroundColor Red
+    Write-Host "6. Testing Expensive File Operations in Loop..." -ForegroundColor Red
     
     $startTime = Get-Date
     $tempDir = Join-Path $env:TEMP "SlowPowerShellTest"
@@ -243,7 +246,7 @@ function Test-SlowFileOperations {
 function Test-SlowObjectCreation {
     param([int]$Count = 2000)
     
-    Write-Host "`n7. Testing Inefficient Object Creation with ForEach-Object..." -ForegroundColor Red
+    Write-Host "7. Testing Inefficient Object Creation with ForEach-Object..." -ForegroundColor Red
     
     $startTime = Get-Date
     
@@ -295,7 +298,7 @@ function Get-Factorial {
 # MAIN EXECUTION - Run All Slow Patterns
 # =============================================================================
 function Start-SlowCodeAnalysis {
-    Write-Host "`n=== Starting Slow Code Analysis ===" -ForegroundColor Yellow
+    Write-Host "=== Starting Slow Code Analysis ===" -ForegroundColor Yellow
     Write-Host "This will take several minutes to complete..." -ForegroundColor Yellow
     
     $totalStart = Get-Date
@@ -324,13 +327,13 @@ function Start-SlowCodeAnalysis {
     $totalEnd = Get-Date
     $totalDuration = ($totalEnd - $totalStart).TotalSeconds
     
-    Write-Host "`n=== Analysis Complete ===" -ForegroundColor Green
+    Write-Host "=== Analysis Complete ===" -ForegroundColor Green
     Write-Host "Total execution time: $totalDuration seconds" -ForegroundColor Green
     Write-Host "1. Install Profiler Module:" -ForegroundColor Yellow
     Write-Host "   Install-Module -Name Profiler -Force" -ForegroundColor White
-    Write-Host "`n2. Profile this script:" -ForegroundColor Yellow
+    Write-Host "2. Profile this script:" -ForegroundColor Yellow
     Write-Host "   Import-Module Profiler" -ForegroundColor White
-    Write-Host "`nNow run the PowerShell Profiler to analyze performance bottlenecks!" -ForegroundColor Cyan
+    Write-Host "Now run the PowerShell Profiler to analyze performance bottlenecks!" -ForegroundColor Cyan
     Write-Host "Example: $Temp = Trace-Script { .\Profiler.ps1 }" -ForegroundColor Cyan
 }
 
